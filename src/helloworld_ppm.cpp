@@ -1,0 +1,21 @@
+#include <iostream>
+
+int main()
+{
+    int w = 256, h = 256;
+    std::cout << "P3\n"
+              << w << ' ' << h << "\n255\n";
+    for (int j = 0; j < h; j++)
+        for (int i = 0; i < w; i++)
+        {
+            auto r = double(i) / (w - 1);
+            auto g = double(j) / (h - 1);
+            auto b = 0.0;
+
+            int ir = int(255.999 * r);
+            int ig = int(255.999 * g);
+            int ib = int(255.999 * b);
+
+            std::cout << ir << ' ' << ig << ' ' << ib << '\n';
+        }
+}
