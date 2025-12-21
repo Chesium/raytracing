@@ -3,7 +3,8 @@
 int main() {
   int w = 256, h = 256;
   std::cout << "P3\n" << w << ' ' << h << "\n255\n";
-  for(int j = 0; j < h; j++)
+  for(int j = 0; j < h; j++) {
+    std::clog << "\rScanlines remaining: " << (h - j) << ' ' << std::flush;
     for(int i = 0; i < w; i++) {
       auto r = double(i) / (w - 1);
       auto g = double(j) / (h - 1);
@@ -15,4 +16,6 @@ int main() {
 
       std::cout << ir << ' ' << ig << ' ' << ib << '\n';
     }
+  }
+  std::clog << "\rDone.                 \n";
 }
