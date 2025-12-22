@@ -41,6 +41,10 @@ public:
   v3 &operator/=(double t) { return *this *= 1 / t; }
   double l() const { return std::sqrt(lsq()); }
   double lsq() const { return e[0] * e[0] + e[1] * e[1] + e[2] * e[2]; }
+  bool nearZero() const {
+    const double s = 1e-8;
+    return std::fabs(e[0]) < s && std::fabs(e[1]) < s && std::fabs(e[2]) < s;
+  }
   // generate a random vector in the unit cube
   static v3 rand() { return v3(randDouble(), randDouble(), randDouble()); }
 };
@@ -94,3 +98,5 @@ inline v3 randUnitOnHemisphere(const v3 &n) {
   v3 v = randUnit();
   return dot(v, n) > 0 ? v : -v;
 }
+
+inline v3 reflect(const v3 &v, const v3 &n) { return v - 2 * dot(v, n) * n; }

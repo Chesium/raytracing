@@ -2,6 +2,7 @@
 
 #include "RTweekend.hpp"
 #include "hittable.hpp"
+#include "material.hpp"
 
 // sample ([-.5,+.5],[-.5,+.5])
 inline v3 sampleSquare() { return v3(randDouble() - 0.5, randDouble() - 0.5, 0); }
@@ -80,8 +81,16 @@ private:
 
       // diffuse (recursive)
       // v3 reflecDir = randUnitOnHemisphere(rec.n); // uniform distribution
-      v3 reflecDir = randUnit() + rec.n; // Lambertian distribution
-      return reflectance * rayColor(ray(rec.p, reflecDir), depth - 1, world);
+      // v3 reflecDir = randUnit() + rec.n; // Lambertian distribution
+      // return reflectance * rayColor(ray(rec.p, reflecDir), depth - 1, world);
+
+      ray scattered;
+      color attenuation;
+      if(rec.mat->scatter(ra, rec, attenuation, scattered)) { // scattered / reflected
+        return attenuation * rayColor(scattered, depth - 1, world);
+      } else { // absorbed
+        return color(0, 0, 0);
+      }
     }
     // background gradient
     v3 unit_direction = unit(ra.direction());

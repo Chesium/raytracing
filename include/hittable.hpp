@@ -2,10 +2,13 @@
 
 #include "RTweekend.hpp"
 
+class Material;
+
 class HitRecord {
 public:
   point3 p;
   v3 n; // normal vector
+  shared_ptr<Material> mat;
   double t;
   bool frontFace; // true, say, if the ray is outside of the sphere
 
