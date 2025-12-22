@@ -13,5 +13,6 @@ int main() {
   cam.targetAspectRatio = 16.0 / 9.0;
   cam.imageWidth = 400;
   cam.samplesPerPixel = 100;
+  cam.maxDepth = 10;
   cam.render(world);
 }

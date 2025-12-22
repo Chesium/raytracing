@@ -11,6 +11,7 @@ public:
   double targetAspectRatio{1.0};
   uint imageWidth{200};
   uint samplesPerPixel{10};
+  uint maxDepth{10};
 
   void render(const Hittable &world) {
     init();
@@ -20,7 +21,7 @@ public:
       for(uint i = 0; i < imageWidth; i++) {
         color c(0, 0, 0);
         for(uint s = 0; s < samplesPerPixel; s++) {
-          c += rayColor(getRandomPixelRay(i, j), world);
+          c += rayColor(getRandomPixelRay(i, j), maxDepth, world);
         }
         writeColor(std::cout, c / samplesPerPixel);
       }
@@ -64,7 +65,8 @@ private:
     return ray(pixelSample, rayDirection);
   }
 
-  color rayColor(const ray &ra, const Hittable &world) {
+  color rayColor(const ray &ra, uint depth, const Hittable &world) {
+    if(depth <= 0) return color(0, 0, 0);
     HitRecord rec;
     // hittable list processing
     if(world.hit(ra, Interval(0, inf), rec)) {
@@ -73,7 +75,7 @@ private:
       // diffuse (recursive)
       const double reflectivity = 0.5;
       v3 reflecDir = randUnitOnHemisphere(rec.n);
-      return reflectivity * rayColor(ray(rec.p, reflecDir), world);
+      return reflectivity * rayColor(ray(rec.p, reflecDir), depth - 1, world);
     }
     // background gradient
     v3 unit_direction = unit(ra.direction());
