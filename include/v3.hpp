@@ -2,6 +2,15 @@
 
 #include <cmath>
 #include <iostream>
+#include <random>
+
+inline double randDouble() {
+  static std::uniform_real_distribution<double> distribution(0.0, 1.0);
+  static std::mt19937 generator;
+  return distribution(generator);
+}
+
+inline double randDouble(double mi, double mx) { return mi + randDouble() * (mx - mi); }
 
 class v3 {
 public:
@@ -32,6 +41,8 @@ public:
   v3 &operator/=(double t) { return *this *= 1 / t; }
   double l() const { return std::sqrt(lsq()); }
   double lsq() const { return e[0] * e[0] + e[1] * e[1] + e[2] * e[2]; }
+  // generate a random vector in the unit cube
+  static v3 rand() { return v3(randDouble(), randDouble(), randDouble()); }
 };
 
 using point3 = v3;
@@ -68,3 +79,18 @@ inline v3 cross(const v3 &u, const v3 &v) {
 }
 
 inline v3 unit(const v3 &v) { return v / v.l(); }
+
+inline v3 randUnit() {
+  // using rejection sampling
+  // to sample vectors in a unit sphere (which is contained by a unit cube)
+  while(true) {
+    v3 v = v3::rand();
+    double lsq = v.lsq();
+    if(1e-160 < lsq && lsq <= 1) return v / std::sqrt(lsq);
+  }
+}
+
+inline v3 randUnitOnHemisphere(const v3 &n) {
+  v3 v = randUnit();
+  return dot(v, n) > 0 ? v : -v;
+}

@@ -68,7 +68,12 @@ private:
     HitRecord rec;
     // hittable list processing
     if(world.hit(ra, Interval(0, inf), rec)) {
-      return 0.5 * (rec.n + v3(1, 1, 1));
+      // return 0.5 * (rec.n + v3(1, 1, 1)); // Norm-colored
+
+      // diffuse (recursive)
+      const double reflectivity = 0.5;
+      v3 reflecDir = randUnitOnHemisphere(rec.n);
+      return reflectivity * rayColor(ray(rec.p, reflecDir), world);
     }
     // background gradient
     v3 unit_direction = unit(ra.direction());
