@@ -10,14 +10,14 @@ using uint = unsigned int;
 double hit_sphere(const ray &r, const point3 &C, double radius) {
   v3 d = r.direction(), Q = r.origin();
   v3 QC = C - Q;
-  double a = dot(d, d);
-  double b = -2.0 * dot(d, QC);
+  double a = d.lsq();    // dot(d,d)
+  double h = dot(d, QC); // b = -2h
   double c = dot(QC, QC) - radius * radius;
-  double discri = b * b - 4 * a * c;
+  double discri = h * h - a * c;
   if(discri < 0) {
     return -1.0;
   } else {
-    return (-b - std::sqrt(discri)) / (2 * a);
+    return (h - std::sqrt(discri)) / a;
   }
 }
 
