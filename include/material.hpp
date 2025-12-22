@@ -50,8 +50,15 @@ public:
   bool scatter(const ray &ra, const HitRecord &rec, color &attenuation,
                ray &scattered) const override {
     double ri = rec.frontFace ? (1.0 / refractionIndex) : refractionIndex;
-    v3 refracted = refract(unit(ra.direction()), rec.n, ri);
-    scattered = ray(rec.p, refracted);
+    v3 R = unit(ra.direction()), direction;
+    double cosTheta = std::fmin(dot(-R, rec.n), 1.0);
+    double sinTheta = std::sqrt(1 - cosTheta * cosTheta);
+    if(ri * sinTheta > 1.0) { // total reflection
+      direction = reflect(R, rec.n);
+    } else { // refraction
+      direction = refract(R, rec.n, ri);
+    }
+    scattered = ray(rec.p, direction);
     attenuation = color(1.0, 1.0, 1.0);
     return true;
   }
