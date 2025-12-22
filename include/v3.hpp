@@ -100,3 +100,10 @@ inline v3 randUnitOnHemisphere(const v3 &n) {
 }
 
 inline v3 reflect(const v3 &v, const v3 &n) { return v - 2 * dot(v, n) * n; }
+
+inline v3 refract(const v3 &R, const v3 &n, double etaIOverEtaT) {
+  double cosTheta = std::fmin(dot(-R, n), 1.0);
+  v3 RPerp = etaIOverEtaT * (R + dot(-R, n) * n);
+  v3 RPara = -std::sqrt(std::fabs(1 - RPerp.lsq())) * n;
+  return RPerp + RPara;
+}

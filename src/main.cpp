@@ -8,7 +8,8 @@
 int main() {
   auto materialGround = make_shared<Lambertian>(color(0.8, 0.8, 0.0));
   auto materialCenter = make_shared<Lambertian>(color(0.1, 0.2, 0.5));
-  auto materialLeft = make_shared<Metal>(color(0.8, 0.8, 0.8), 1.0);
+  // auto materialLeft = make_shared<Metal>(color(0.8, 0.8, 0.8), 1.0);
+  auto materialLeft = make_shared<Dielectric>(1.50);
   auto materialRight = make_shared<Metal>(color(0.8, 0.6, 0.2), 0.3);
 
   HittableList world;

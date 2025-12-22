@@ -43,3 +43,19 @@ private:
   color albedo;
   double fuzz;
 };
+
+class Dielectric : public Material {
+public:
+  Dielectric(double refractionIndex) : refractionIndex(refractionIndex) {}
+  bool scatter(const ray &ra, const HitRecord &rec, color &attenuation,
+               ray &scattered) const override {
+    double ri = rec.frontFace ? (1.0 / refractionIndex) : refractionIndex;
+    v3 refracted = refract(unit(ra.direction()), rec.n, ri);
+    scattered = ray(rec.p, refracted);
+    attenuation = color(1.0, 1.0, 1.0);
+    return true;
+  }
+
+private:
+  double refractionIndex;
+};
