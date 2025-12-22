@@ -1,25 +1,7 @@
-#include <functional>
-#include <iostream>
-
-#include "color.hpp"
-#include "ray.hpp"
-#include "v3.hpp"
-
-using uint = unsigned int;
-
-double hit_sphere(const ray &r, const point3 &C, double radius) {
-  v3 d = r.direction(), Q = r.origin();
-  v3 QC = C - Q;
-  double a = d.lsq();    // dot(d,d)
-  double h = dot(d, QC); // b = -2h
-  double c = dot(QC, QC) - radius * radius;
-  double discri = h * h - a * c;
-  if(discri < 0) {
-    return -1.0;
-  } else {
-    return (h - std::sqrt(discri)) / a;
-  }
-}
+#include "RTweekend.hpp"
+#include "hittable.hpp"
+#include "hittableList.hpp"
+#include "sphere.hpp"
 
 class RayTracer {
 public:
@@ -29,21 +11,10 @@ public:
     focalLength = 1.0;
     viewportHeight = 2.0;
     cameraCenter = point3(0, 0, 0);
-    rayColor = [](const ray &r) -> color {
-      point3 C(1, 0.4, -2);
-      double radius = 0.5;
-      double t_inter = hit_sphere(r, C, radius);
-      if(t_inter >= 0) {
-        point3 inter = r.at(t_inter);
-        v3 n = unit(inter - C);
-        // n.x n.y n.z ∈ [-1,1] ==map=> [0,1]  0.5*(k+1)
-        return 0.5 * (n + v3(1, 1, 1));
-      }
-      v3 unit_direction = unit(r.direction());
-      auto a = 0.5 * (unit_direction.y() + 1.0);
-      return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
-    };
     calcOtherParameters();
+    // setup the world (hittable list)
+    world.add(make_shared<Sphere>(point3(1, 0.4, -2), 0.5));
+    world.add(make_shared<Sphere>(point3(0, -100.5, -1), 100));
   }
 
   void render() {
@@ -62,6 +33,18 @@ public:
   }
 
 private:
+  color rayColor(const ray &ra) {
+    HitRecord rec;
+    // hittable list processing
+    if(world.hit(ra, 0, inf, rec)) {
+      return 0.5 * (rec.n + v3(1, 1, 1));
+    }
+    // background gradient
+    v3 unit_direction = unit(ra.direction());
+    auto a = 0.5 * (unit_direction.y() + 1.0);
+    return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
+  }
+
   void calcOtherParameters() {
     imageHeight = uint(imageWidth / targetAspectRatio);
     imageHeight = imageHeight < 1 ? 1 : imageHeight;
@@ -82,7 +65,7 @@ private:
   double focalLength;
   double viewportHeight;
   point3 cameraCenter;
-  std::function<color(const ray &)> rayColor;
+  HittableList world;
   // calculated
   uint imageHeight;
   double realAspectRatio;
