@@ -53,7 +53,8 @@ public:
     v3 R = unit(ra.direction()), direction;
     double cosTheta = std::fmin(dot(-R, rec.n), 1.0);
     double sinTheta = std::sqrt(1 - cosTheta * cosTheta);
-    if(ri * sinTheta > 1.0) { // total reflection
+    if(ri * sinTheta > 1.0 || reflectance(cosTheta, ri) > randDouble()) {
+      // total reflection or the varied chance of reflection
       direction = reflect(R, rec.n);
     } else { // refraction
       direction = refract(R, rec.n, ri);
@@ -65,4 +66,11 @@ public:
 
 private:
   double refractionIndex;
+
+  static double reflectance(double cos, double ri) {
+    // Use Schlick's approximation for reflectance.
+    auto r0 = (1 - ri) / (1 + ri);
+    r0 = r0 * r0;
+    return r0 + (1 - r0) * std::pow((1 - cos), 5);
+  }
 };
