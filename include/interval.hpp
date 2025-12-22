@@ -12,6 +12,11 @@ public:
   double size() { return mx - mi; };
   bool contains(double x) { return mi <= x && x <= mx; }
   bool surrounds(double x) { return mi < x && x < mx; }
+  double clamp(double x) const {
+    if(x < mi) return mi;
+    if(x > mx) return mx;
+    return x;
+  }
   static const Interval empty, universe;
 };
 

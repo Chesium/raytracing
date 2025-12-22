@@ -3,22 +3,26 @@
 #include "RTweekend.hpp"
 #include "hittable.hpp"
 
+// sample ([-.5,+.5],[-.5,+.5])
+inline v3 sampleSquare() { return v3(randDouble() - 0.5, randDouble() - 0.5, 0); }
+
 class Camera {
 public:
   double targetAspectRatio{1.0};
   uint imageWidth{200};
+  uint samplesPerPixel{10};
 
   void render(const Hittable &world) {
     init();
     std::cout << "P3\n" << imageWidth << ' ' << imageHeight << "\n255\n";
-    for(int j = 0; j < imageHeight; j++) {
+    for(uint j = 0; j < imageHeight; j++) {
       std::clog << "\rScanlines remaining: " << (imageHeight - j) << ' ' << std::flush;
-      for(int i = 0; i < imageWidth; i++) {
-        point3 pixelCenter = pixel00 + (i * pixelU) + (j * pixelV);
-        v3 rayDirection = pixelCenter - cameraCenter;
-        ray r(pixelCenter, rayDirection);
-        color c = rayColor(r, world);
-        writeColor(std::cout, c);
+      for(uint i = 0; i < imageWidth; i++) {
+        color c(0, 0, 0);
+        for(uint s = 0; s < samplesPerPixel; s++) {
+          c += rayColor(getRandomPixelRay(i, j), world);
+        }
+        writeColor(std::cout, c / samplesPerPixel);
       }
     }
     std::clog << "\rDone.                 \n";
@@ -50,6 +54,14 @@ private:
     pixelV = viewportV / imageHeight;
     viewpointUpperLeft = cameraCenter - v3(0, 0, focalLength) - viewportU / 2 - viewportV / 2;
     pixel00 = viewpointUpperLeft + pixelU / 2 + pixelV / 2;
+  }
+
+  ray getRandomPixelRay(uint i, uint j) {
+    v3 randOffset = sampleSquare();
+    point3 pixelSample =
+        pixel00 + ((i + randOffset.x()) * pixelU) + ((j + randOffset.y()) * pixelV);
+    v3 rayDirection = pixelSample - cameraCenter;
+    return ray(pixelSample, rayDirection);
   }
 
   color rayColor(const ray &ra, const Hittable &world) {
