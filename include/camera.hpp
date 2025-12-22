@@ -74,7 +74,8 @@ private:
 
       // diffuse (recursive)
       const double reflectivity = 0.5;
-      v3 reflecDir = randUnitOnHemisphere(rec.n);
+      // v3 reflecDir = randUnitOnHemisphere(rec.n); // uniform distribution
+      v3 reflecDir = randUnit() + rec.n; // Lambertian distribution
       return reflectivity * rayColor(ray(rec.p, reflecDir), depth - 1, world);
     }
     // background gradient
