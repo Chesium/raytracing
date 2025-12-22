@@ -7,14 +7,18 @@
 
 using uint = unsigned int;
 
-bool hit_sphere(const ray &r, const point3 &C, double radius) {
+double hit_sphere(const ray &r, const point3 &C, double radius) {
   v3 d = r.direction(), Q = r.origin();
   v3 QC = C - Q;
   double a = dot(d, d);
   double b = -2.0 * dot(d, QC);
   double c = dot(QC, QC) - radius * radius;
   double discri = b * b - 4 * a * c;
-  return discri >= 0;
+  if(discri < 0) {
+    return -1.0;
+  } else {
+    return (-b - std::sqrt(discri)) / (2 * a);
+  }
 }
 
 class RayTracer {
@@ -26,8 +30,14 @@ public:
     viewportHeight = 2.0;
     cameraCenter = point3(0, 0, 0);
     rayColor = [](const ray &r) -> color {
-      if(hit_sphere(r, point3(1, 0.4, -2), 0.5)) {
-        return color(1, 0, 0);
+      point3 C(1, 0.4, -2);
+      double radius = 0.5;
+      double t_inter = hit_sphere(r, C, radius);
+      if(t_inter >= 0) {
+        point3 inter = r.at(t_inter);
+        v3 n = unit(inter - C);
+        // n.x n.y n.z ∈ [-1,1] ==map=> [0,1]  0.5*(k+1)
+        return 0.5 * (n + v3(1, 1, 1));
       }
       v3 unit_direction = unit(r.direction());
       auto a = 0.5 * (unit_direction.y() + 1.0);
