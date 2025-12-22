@@ -69,7 +69,7 @@ private:
     if(depth <= 0) return color(0, 0, 0);
     HitRecord rec;
     // hittable list processing
-    if(world.hit(ra, Interval(0, inf), rec)) {
+    if(world.hit(ra, Interval(0.001, inf), rec)) {
       // return 0.5 * (rec.n + v3(1, 1, 1)); // Norm-colored
 
       // diffuse (recursive)
