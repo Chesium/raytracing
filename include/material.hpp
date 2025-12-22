@@ -29,15 +29,17 @@ private:
 
 class Metal : public Material {
 public:
-  Metal(const color &albedo) : albedo(albedo) {}
+  Metal(const color &albedo, double fuzz) : albedo(albedo), fuzz(fuzz) {}
   bool scatter(const ray &ra, const HitRecord &rec, color &attenuation,
                ray &scattered) const override {
     v3 reflected = reflect(ra.direction(), rec.n);
+    reflected = unit(reflected) + randUnit() * fuzz;
     scattered = ray(rec.p, reflected);
     attenuation = albedo;
-    return true;
+    return dot(reflected, rec.n) > 0; // same hemisphere
   }
 
 private:
   color albedo;
+  double fuzz;
 };
