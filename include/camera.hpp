@@ -6,6 +6,9 @@
 // sample ([-.5,+.5],[-.5,+.5])
 inline v3 sampleSquare() { return v3(randDouble() - 0.5, randDouble() - 0.5, 0); }
 
+const double reflectanceList[10] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+const uint reflectanceListN = 10;
+
 class Camera {
 public:
   double targetAspectRatio{1.0};
@@ -19,6 +22,8 @@ public:
     for(uint j = 0; j < imageHeight; j++) {
       std::clog << "\rScanlines remaining: " << (imageHeight - j) << ' ' << std::flush;
       for(uint i = 0; i < imageWidth; i++) {
+        // traverse the reflectance list to generate the "gamut" of the scene
+        reflectance = reflectanceList[uint((double)i / imageWidth * reflectanceListN)];
         color c(0, 0, 0);
         for(uint s = 0; s < samplesPerPixel; s++) {
           c += rayColor(getRandomPixelRay(i, j), maxDepth, world);
@@ -65,6 +70,7 @@ private:
     return ray(pixelSample, rayDirection);
   }
 
+  double reflectance = 0.5;
   color rayColor(const ray &ra, uint depth, const Hittable &world) {
     if(depth <= 0) return color(0, 0, 0);
     HitRecord rec;
@@ -73,10 +79,9 @@ private:
       // return 0.5 * (rec.n + v3(1, 1, 1)); // Norm-colored
 
       // diffuse (recursive)
-      const double reflectivity = 0.5;
       // v3 reflecDir = randUnitOnHemisphere(rec.n); // uniform distribution
       v3 reflecDir = randUnit() + rec.n; // Lambertian distribution
-      return reflectivity * rayColor(ray(rec.p, reflecDir), depth - 1, world);
+      return reflectance * rayColor(ray(rec.p, reflecDir), depth - 1, world);
     }
     // background gradient
     v3 unit_direction = unit(ra.direction());

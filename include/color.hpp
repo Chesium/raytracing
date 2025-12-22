@@ -7,10 +7,15 @@
 
 using color = v3;
 
+inline double lin2gamma(double lin) {
+  // using gamma 2 (exponent used from gamma space to linear space)
+  return lin == 0 ? 0 : std::sqrt(lin);
+}
+
 void writeColor(std::ostream &out, const color &p) {
-  auto r = p.x();
-  auto g = p.y();
-  auto b = p.z();
+  auto r = lin2gamma(p.x());
+  auto g = lin2gamma(p.y());
+  auto b = lin2gamma(p.z());
 
   // Translate the [0,1] component values to the byte range [0,255].
   static const Interval intensity(0.000, 0.999);
