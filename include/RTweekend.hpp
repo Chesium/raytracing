@@ -17,5 +17,6 @@ const double pi = 3.1415926535897932385;
 inline double deg2rad(double deg) { return deg * pi / 180.0; }
 
 #include "color.hpp"
+#include "interval.hpp"
 #include "ray.hpp"
 #include "v3.hpp"

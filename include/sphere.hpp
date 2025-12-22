@@ -7,7 +7,7 @@ class Sphere : public Hittable {
 public:
   Sphere(const point3 c, double r) : c(c), r(std::fmax(0, r)) {};
 
-  bool hit(const ray &ra, double tmi, double tmx, HitRecord &rec) const override {
+  bool hit(const ray &ra, Interval rayt, HitRecord &rec) const override {
     v3 d = ra.direction(), Q = ra.origin();
     v3 QC = c - Q;
     double A = d.lsq();    // dot(d,d)
@@ -21,9 +21,9 @@ public:
     // find the nearest t s.t. ray(t) ∈ (tmi,tmx)
     double sqdiscri = std::sqrt(discri);
     double root = (H - sqdiscri) / A;
-    if(root <= tmi || root >= tmx) {
+    if(!rayt.surrounds(root)) {
       root = (H + sqdiscri) / A;
-      if(root <= tmi || root >= tmx) return false;
+      if(!rayt.surrounds(root)) return false;
     }
 
     // fill the rec:

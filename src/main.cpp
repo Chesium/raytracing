@@ -36,7 +36,7 @@ private:
   color rayColor(const ray &ra) {
     HitRecord rec;
     // hittable list processing
-    if(world.hit(ra, 0, inf, rec)) {
+    if(world.hit(ra, Interval(0, inf), rec)) {
       return 0.5 * (rec.n + v3(1, 1, 1));
     }
     // background gradient

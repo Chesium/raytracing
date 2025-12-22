@@ -5,7 +5,6 @@
 #include "RTweekend.hpp"
 #include "hittable.hpp"
 
-
 using std::make_shared;
 using std::shared_ptr;
 
@@ -19,12 +18,12 @@ public:
 
   void add(shared_ptr<Hittable> obj) { objs.push_back(obj); }
 
-  bool hit(const ray &ra, double tmi, double tmx, HitRecord &rec) const override {
+  bool hit(const ray &ra, Interval rayt, HitRecord &rec) const override {
     HitRecord tmpRec;
     bool hitAny = false;
-    double closestSoFar = tmx;
+    double closestSoFar = rayt.mx;
     for(const auto &obj : objs) {
-      if(obj->hit(ra, tmi, closestSoFar, tmpRec)) {
+      if(obj->hit(ra, Interval(rayt.mi, closestSoFar), tmpRec)) {
         hitAny = true;
         closestSoFar = tmpRec.t;
         rec = tmpRec;
