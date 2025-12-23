@@ -25,5 +25,6 @@ int main() {
   cam.imageWidth = 400;
   cam.samplesPerPixel = 100;
   cam.maxDepth = 10;
+  cam.verticalFOVdeg = 60;
   cam.render(world);
 }

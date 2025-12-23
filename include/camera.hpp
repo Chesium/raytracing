@@ -16,6 +16,8 @@ public:
   uint imageWidth{200};
   uint samplesPerPixel{10};
   uint maxDepth{10};
+  double focalLength{1.0};
+  double verticalFOVdeg{90};
 
   void render(const Hittable &world) {
     init();
@@ -37,13 +39,13 @@ public:
 
 private:
   // init
-  double focalLength{1.0};
-  double viewportHeight{2.0};
   point3 cameraCenter{point3(0, 0, 0)};
   // calculated
   uint imageHeight;
   double realAspectRatio;
+  double verticalFOVrad;
   double viewportWidth;
+  double viewportHeight;
   // aux vectors
   v3 viewportU, viewportV;
   v3 pixelU, pixelV;
@@ -53,6 +55,8 @@ private:
     imageHeight = uint(imageWidth / targetAspectRatio);
     imageHeight = imageHeight < 1 ? 1 : imageHeight;
     realAspectRatio = (double)imageWidth / imageHeight;
+    verticalFOVrad = deg2rad(verticalFOVdeg);
+    viewportHeight = 2 * focalLength * std::tan(verticalFOVrad / 2);
     viewportWidth = viewportHeight * realAspectRatio;
     // aux vectors:
     viewportU = v3(viewportWidth / 2, 0, 0);
