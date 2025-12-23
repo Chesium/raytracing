@@ -25,6 +25,9 @@ int main() {
   cam.imageWidth = 400;
   cam.samplesPerPixel = 100;
   cam.maxDepth = 10;
-  cam.verticalFOVdeg = 60;
+  cam.verticalFOVdeg = 36;
+  cam.lookFrom = point3(-2, 2, 1);
+  cam.lookAt = point3(0, 0, -2);
+  cam.vup = v3(1, 1, 0);
   cam.render(world);
 }

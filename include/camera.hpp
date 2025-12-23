@@ -18,6 +18,9 @@ public:
   uint maxDepth{10};
   double focalLength{1.0};
   double verticalFOVdeg{90};
+  v3 lookFrom{0, 0, 0};
+  v3 lookAt{0, 0, -1};
+  v3 vup{0, 1, 0};
 
   void render(const Hittable &world) {
     init();
@@ -38,15 +41,15 @@ public:
   }
 
 private:
-  // init
-  point3 cameraCenter{point3(0, 0, 0)};
   // calculated
+  point3 cameraCenter;
   uint imageHeight;
   double realAspectRatio;
   double verticalFOVrad;
   double viewportWidth;
   double viewportHeight;
   // aux vectors
+  v3 u, v, w; // Camera frame basis vectors
   v3 viewportU, viewportV;
   v3 pixelU, pixelV;
   point3 viewpointUpperLeft;
@@ -58,12 +61,17 @@ private:
     verticalFOVrad = deg2rad(verticalFOVdeg);
     viewportHeight = 2 * focalLength * std::tan(verticalFOVrad / 2);
     viewportWidth = viewportHeight * realAspectRatio;
+    // get the basis vectors
+    cameraCenter = lookFrom;
+    w = unit(lookFrom - lookAt); // -L
+    u = unit(cross(vup, w));
+    v = cross(w, u);
     // aux vectors:
-    viewportU = v3(viewportWidth / 2, 0, 0);
-    viewportV = v3(0, -viewportHeight / 2, 0);
+    viewportU = viewportWidth / 2 * u;
+    viewportV = viewportHeight / 2 * -v;
     pixelU = viewportU / imageWidth;
     pixelV = viewportV / imageHeight;
-    viewpointUpperLeft = cameraCenter - v3(0, 0, focalLength) - viewportU / 2 - viewportV / 2;
+    viewpointUpperLeft = cameraCenter - focalLength * w - viewportU / 2 - viewportV / 2;
     pixel00 = viewpointUpperLeft + pixelU / 2 + pixelV / 2;
   }
 
