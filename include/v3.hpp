@@ -94,6 +94,14 @@ inline v3 randUnit() {
   }
 }
 
+inline v3 randUnitInDisk() {
+  while(true) {
+    v3 v(randDouble(), randDouble(), 0);
+    double lsq = v.lsq();
+    if(1e-160 < lsq && lsq <= 1) return v / std::sqrt(lsq);
+  }
+}
+
 inline v3 randUnitOnHemisphere(const v3 &n) {
   v3 v = randUnit();
   return dot(v, n) > 0 ? v : -v;

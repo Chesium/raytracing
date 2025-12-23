@@ -16,7 +16,8 @@ public:
   uint imageWidth{200};
   uint samplesPerPixel{10};
   uint maxDepth{10};
-  double focalLength{1.0};
+  double focusDist{5.0};
+  double defocusDeg{0};
   double verticalFOVdeg{90};
   v3 lookFrom{0, 0, 0};
   v3 lookAt{0, 0, -1};
@@ -52,14 +53,16 @@ private:
   v3 u, v, w; // Camera frame basis vectors
   v3 viewportU, viewportV;
   v3 pixelU, pixelV;
+  v3 defocusU, defocusV;
   point3 viewpointUpperLeft;
   point3 pixel00;
+  double defocusR;
   void init() {
     imageHeight = uint(imageWidth / targetAspectRatio);
     imageHeight = imageHeight < 1 ? 1 : imageHeight;
     realAspectRatio = (double)imageWidth / imageHeight;
     verticalFOVrad = deg2rad(verticalFOVdeg);
-    viewportHeight = 2 * focalLength * std::tan(verticalFOVrad / 2);
+    viewportHeight = 2 * focusDist * std::tan(verticalFOVrad / 2);
     viewportWidth = viewportHeight * realAspectRatio;
     // get the basis vectors
     cameraCenter = lookFrom;
@@ -67,20 +70,30 @@ private:
     u = unit(cross(vup, w));
     v = cross(w, u);
     // aux vectors:
-    viewportU = viewportWidth / 2 * u;
-    viewportV = viewportHeight / 2 * -v;
+    viewportU = viewportWidth * u;
+    viewportV = viewportHeight * -v;
     pixelU = viewportU / imageWidth;
     pixelV = viewportV / imageHeight;
-    viewpointUpperLeft = cameraCenter - focalLength * w - viewportU / 2 - viewportV / 2;
+    viewpointUpperLeft = cameraCenter - focusDist * w - viewportU / 2 - viewportV / 2;
     pixel00 = viewpointUpperLeft + pixelU / 2 + pixelV / 2;
+
+    defocusR = focusDist * std::tan(deg2rad(defocusDeg) / 2);
+    defocusU = defocusR * u;
+    defocusV = defocusR * v;
   }
 
   ray getRandomPixelRay(uint i, uint j) {
     v3 randOffset = sampleSquare();
     point3 pixelSample =
         pixel00 + ((i + randOffset.x()) * pixelU) + ((j + randOffset.y()) * pixelV);
-    v3 rayDirection = pixelSample - cameraCenter;
-    return ray(pixelSample, rayDirection);
+    point3 rayOrigin = (defocusDeg <= 0 ? cameraCenter : sampleFromDefocusDisk());
+    v3 rayDirection = pixelSample - rayOrigin;
+    return ray(rayOrigin, rayDirection);
+  }
+
+  point3 sampleFromDefocusDisk() {
+    v3 v = randUnitInDisk();
+    return cameraCenter + v.x() * defocusU + v.y() * defocusV;
   }
 
   double reflectance = 0.5;
